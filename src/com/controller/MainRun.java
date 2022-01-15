@@ -1,5 +1,8 @@
 package com.controller;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +29,19 @@ public class MainRun {
 	public void insert(Data data) {
 		String key=data.getKey();
 		String dt=data.getData();
-		cacheBean.getLink().add(dt);
+//		cacheBean.getLink().add(dt);
 		
-		System.out.println(key+"--"+dt+"--insert");
+		ConcurrentHashMap<String, ConcurrentLinkedQueue<String>> map = cacheBean.getMap();
+		ConcurrentLinkedQueue<String> link = map.get(key);
+		if(link == null) {
+			link = new ConcurrentLinkedQueue<String>();
+			map.put(key, link);
+			link.add(dt);
+			cacheBean.setMap(map);
+		}else {
+			link.add(dt);
+		}
+		System.out.println(map);
+//		System.out.println(key+"--"+dt+"--insert");
 	}
 }
